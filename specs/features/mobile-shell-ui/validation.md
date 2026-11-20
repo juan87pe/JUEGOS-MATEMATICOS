@@ -73,3 +73,15 @@ Escenario: Respuesta elástica inmediata en menos de 50 ms al presionar un botó
   Entonces el botón debe aplicar la transformación "scale(0.94)" con transición de "150ms cubic-bezier(0.34, 1.56, 0.64, 1)"
   Y la respuesta visual debe iniciarse en menos de 50 ms
 ```
+
+---
+
+### Escenario 7: Consistencia de Botones Puros y Retroceso Transversal por Icono
+**Trazabilidad:** `[REQ-SHELL-008]`
+```gherkin
+Escenario: Consistencia de botones puros y retroceso por icono
+  Dado que el usuario navega por la cabecera o barra de acciones de cualquier minijuego
+  Cuando se inspeccionan los botones de acción y navegación
+  Entonces cada botón debe mostrar únicamente un icono intuitivo (con "aria-label") o únicamente texto claro
+  Y el botón de retroceso hacia el menú principal debe ser transversalmente solo un icono sin texto adjunto
+```

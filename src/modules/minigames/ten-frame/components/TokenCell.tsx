@@ -31,23 +31,24 @@ export const TokenCell: React.FC<TokenCellProps> = ({
   compact = false,
   cellIndex,
 }) => {
-  const sizeClass = compact ? 'w-7 h-7 text-base' : 'w-9 h-9 text-xl';
+  const sizeClass = compact ? 'w-[78%] h-[78%] text-lg' : 'w-[78%] h-[78%] text-2xl';
+  const circleBorderClass = compact ? 'border-2 border-cloud-text' : 'border-[2.5px] border-cloud-text';
 
   return (
     <div
       data-testid={`token-cell-${cellIndex}`}
       data-cell-state={state}
-      className={`aspect-square flex items-center justify-center rounded-lg border transition-all duration-100 ${
+      className={`aspect-square flex items-center justify-center rounded-none transition-all duration-100 ${
         base5Glow
-          ? 'bg-cloud-sunLight border-cloud-sun ring-2 ring-cloud-sun/70 shadow-sm'
-          : 'bg-cloud-surface border-cloud-border'
+          ? 'bg-cloud-sunLight shadow-[inset_0_0_0_2px_rgba(224,179,66,0.85)]'
+          : 'bg-cloud-surface'
       }`}
     >
       {state === 'active' && (
         <span
-          className={`${sizeClass} rounded-full flex items-center justify-center transition-opacity duration-100 select-none ${
+          className={`${sizeClass} rounded-full flex items-center justify-center transition-opacity duration-100 select-none leading-none ${
             tokenType === 'circle'
-              ? `${tokenColor} text-white shadow-sm`
+              ? `${tokenColor} ${circleBorderClass} text-white shadow-sm`
               : 'bg-transparent'
           }`}
           aria-label="ficha activa"

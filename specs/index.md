@@ -79,9 +79,10 @@ Cada minijuego funciona como un micro-módulo pedagógico autónomo bajo `specs/
 | `[REQ-SHELL-005]` | Pantalla de resumen de fin de ronda | Evento | `MOD-SHELL`| `Escenario: Tiempo agotado bloquea entrada y muestra resumen` |
 | `[REQ-SHELL-006]` | Tokens "Cielo Nublado", contraste 11:1 y tipografía base `18px` | Universal | `MOD-SHELL`| `Escenario: Consistencia visual, contraste y tipografía "Cielo Nublado"` |
 | `[REQ-SHELL-007]` | Micro-interacción táctil elástica `scale(0.94)` en `pointerdown` | Evento | `MOD-SHELL`| `Escenario: Micro-interacción táctil elástica al pulsar` |
-| `[REQ-TF-001]`    | Grilla física 2x5 con relación 1:1 | Universal | `MG-TF` | `Escenario: Estructura física y proporciones del marco` |
+| `[REQ-SHELL-008]` | Botones puros (solo icono o solo texto) y retroceso transversal por icono | Universal | `MOD-SHELL`| `Escenario: Consistencia de botones puros y retroceso por icono` |
+| `[REQ-TF-001]`    | Grilla 2x5 continua, bordes gruesos, vértices rectos y fichas al ~78% | Universal | `MG-TF` | `Escenario: Estructura física, bordes gruesos, vértices rectos y proporción de fichas` |
 | `[REQ-TF-002]`    | Llenado canónico en base 5 | Universal | `MG-TF` | `Escenario: El generador produce patrones matemáticos válidos en base 5` |
-| `[REQ-TF-003]`    | Ventana de exposición flash (1100-1300ms) | Estado | `MG-TF` | `Escenario: Transición tras la ventana de exposición flash` |
+| `[REQ-TF-003]`    | Ventana de exposición por ritmo (`Sin prisa` / `3000ms` / `1800ms` / `1000ms`) | Estado | `MG-TF` | `Escenario: Transición tras la ventana de exposición flash sin perder la grilla` |
 | `[REQ-TF-004]`    | Persistencia del marco vacío de 10 casillas | Estado | `MG-TF` | `Escenario: Transición tras la ventana de exposición flash sin perder la grilla` |
 | `[REQ-TF-005]`    | Bloqueo táctil durante flash y peek | Evento | `MG-TF` | `Escenario: El teclado ignora pulsaciones mientras la grilla está expuesta` |
 | `[REQ-TF-006]`    | Rescate "Espiar de Nuevo" (600ms, 1 por reto) | Evento | `MG-TF` | `Escenario: El niño puede espiar de nuevo una única vez por reto` |
@@ -91,3 +92,5 @@ Cada minijuego funciona como un micro-módulo pedagógico autónomo bajo `specs/
 | `[REQ-TF-010]`    | Sustracción fantasma con siluetas discontinuas | Estado | `MG-TF` | `Escenario: Resta donde el sustraendo queda en silueta fantasma y la diferencia visible` |
 | `[REQ-TF-011]`    | Modo explicativo "Ver Solución" | Evento | `MG-TF` | `Escenario: Revelación explicativa paso a paso con avance manual` |
 | `[REQ-TF-012]`    | Web Audio API nativo y tolerancia al error | Universal | `MG-TF` | `Escenario: Ausencia total de campos input y respeto del viewport` |
+| `[REQ-TF-013]`    | Menú desplegable estilizado de nivel y velocidad, botones puros y reinicio | Universal / Evento | `MG-TF` | `Escenario: Cambio de nivel y velocidad por menú desplegable estilizado, reinicio y botones puros` |
+| `[REQ-TF-014]`    | Explicación resumida contextual del juego | Estado | `MG-TF` | `Escenario: Cambio de nivel por menú desplegable, reinicio del minijuego y botones puros` |

@@ -17,11 +17,12 @@ describe('App & GameSelector Integration', () => {
     
     // Navegar al juego real de Marco de Diez
     fireEvent.click(marcoDiezCard!);
-    expect(screen.getByText('Menú')).toBeInTheDocument();
+    const backBtn = screen.getByRole('button', { name: 'Volver al menú' });
+    expect(backBtn).toBeInTheDocument();
     expect(screen.getByTestId('ten-frame-game-view')).toBeInTheDocument();
 
     // Regresar al menú
-    fireEvent.click(screen.getByText('Menú'));
+    fireEvent.click(backBtn);
     expect(screen.getByText('MathKids')).toBeInTheDocument();
   });
 

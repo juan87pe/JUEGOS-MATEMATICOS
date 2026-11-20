@@ -6,6 +6,8 @@
 
 export type TenFrameLevel = 1 | 2 | 3;
 
+export type TenFrameSpeedMode = 'steady' | 'calm' | 'flash' | 'turbo';
+
 export type TokenType = 'apple' | 'star' | 'circle' | 'heart';
 
 export type KeypadMode = 'isomorphic-2x5' | 'compact-3x4';
@@ -83,7 +85,9 @@ export type TenFrameAction =
   | { type: 'PEEK_TIMEOUT' }
   | { type: 'REQUEST_SOLUTION' }
   | { type: 'NEXT_ROUND' }
-  | { type: 'CHANGE_LEVEL'; newLevel: TenFrameLevel };
+  | { type: 'RESET_GAME' }
+  | { type: 'CHANGE_LEVEL'; newLevel: TenFrameLevel }
+  | { type: 'CHANGE_SPEED'; newSpeed: TenFrameSpeedMode };
 
 export interface ReplayStep {
   /** Índice del paso pedagógico */

@@ -19,10 +19,22 @@ export default function App() {
             <button
               type="button"
               onClick={() => setActiveGameId(null)}
-              className="min-w-[56px] min-h-[56px] px-3.5 rounded-btn bg-cloud-surface border border-cloud-border text-cloud-text font-semibold text-sm flex items-center gap-1.5 shadow-cloud-sm active:scale-95 transition-transform"
+              aria-label="Volver al menú"
+              title="Volver al menú"
+              className="min-w-[56px] min-h-[56px] rounded-btn bg-cloud-surface border border-cloud-border text-cloud-text flex items-center justify-center shadow-cloud-sm active:scale-95 transition-transform"
             >
-              <span>⬅️</span>
-              <span>Menú</span>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-6 h-6"
+                aria-hidden="true"
+              >
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
             </button>
             <div className="text-right">
               <span className="text-xs text-cloud-muted block">Minijuego</span>

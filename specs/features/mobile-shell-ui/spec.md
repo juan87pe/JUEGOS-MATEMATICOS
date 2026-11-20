@@ -41,3 +41,8 @@ El módulo **Mobile Shell UI** provee el contenedor de navegación, diseño resp
 - **Tipo:** Por Evento
 - **Sintaxis EARS:**
   > CUANDO el usuario presione un botón, tarjeta o tecla numérica (`pointerdown`), el sistema deberá aplicar una transformación elástica inmediata (`< 50 ms`) a `scale(0.94)` con transición de `150ms cubic-bezier(0.34, 1.56, 0.64, 1)`.
+
+### `[REQ-SHELL-008]` Regla General de Botones Puros y Retroceso Transversal
+- **Tipo:** Universal
+- **Sintaxis EARS:**
+  > El sistema deberá renderizar los botones de acción con únicamente un icono intuitivo (con `aria-label` accesible) o únicamente texto claro, evitando combinar icono y texto salvo necesidad explícita; en particular, el botón de retroceso hacia el menú principal deberá ser transversalmente solo un icono de retroceso en toda la aplicación.

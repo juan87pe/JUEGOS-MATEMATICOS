@@ -35,8 +35,8 @@ export const TenFrameGrid: React.FC<TenFrameGridProps> = ({
   return (
     <div
       data-testid={`ten-frame-grid-${grid.gridId}`}
-      className={`grid grid-cols-5 grid-rows-2 gap-1.5 rounded-2xl border-2 border-cloud-text/75 bg-cloud-surface shadow-cloud-sm ${
-        compact ? 'p-1.5' : 'p-2.5'
+      className={`grid grid-cols-5 grid-rows-2 w-full rounded-none bg-cloud-text shadow-cloud-sm ${
+        compact ? 'p-[2px] gap-[2px]' : 'p-[3px] gap-[3px]'
       }`}
     >
       {CELL_INDICES.map((index) => (

@@ -56,3 +56,4 @@ Cada ciclo de desarrollo realizado por un agente debe cumplir rigurosamente el s
 - **Tipografía:** Legible, redondeada, de alto contraste (mínimo ratio 4.5:1) con números grandes (32px+ en operaciones y dígitos).
 - **Feedback Inmediato:** Toda interacción táctil debe responder visualmente en menos de 50 ms.
 - **Tolerancia a la Frustración:** Las respuestas incorrectas no deben castigar con sonidos estridentes ni bloquear la pantalla; deben mostrar una animación sutil de reintento o revelar la solución con refuerzo positivo.
+- **Botones Puros (Solo Icono o Solo Texto):** Todos los botones de la aplicación deben mostrar únicamente un icono intuitivo (con `aria-label` descriptivo) o únicamente texto claro, evitando combinar icono + texto salvo cuando sea estrictamente necesario. En particular, el botón de retroceso al menú debe ser transversalmente solo un icono intuitivo en toda la aplicación.

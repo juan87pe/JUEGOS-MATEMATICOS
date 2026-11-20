@@ -6,6 +6,7 @@ import {
   TenFrameEngineState,
   TenFrameLevel,
   TenFrameLevelConfig,
+  TenFrameSpeedMode,
 } from '../../../../specs/contracts/ten-frame.types';
 import {
   calculateMake10Transfer,
@@ -17,6 +18,20 @@ export const PRE_FLASH_DURATION_MS = 600;
 export const PEEK_DURATION_MS = 600;
 export const FEEDBACK_DURATION_MS = 800;
 export const ROUND_COMPLETE_TRANSITION_MS = 150;
+
+export interface TenFrameSpeedConfig {
+  id: TenFrameSpeedMode;
+  label: string;
+  durationMs: number | null;
+  timeHint: string;
+}
+
+export const TEN_FRAME_SPEEDS: Record<TenFrameSpeedMode, TenFrameSpeedConfig> = {
+  steady: { id: 'steady', label: 'Sin prisa', durationMs: null, timeHint: 'Fijo' },
+  calm: { id: 'calm', label: 'Tranquilo', durationMs: 3000, timeHint: '3.0 s' },
+  flash: { id: 'flash', label: 'Flash', durationMs: 1800, timeHint: '1.8 s' },
+  turbo: { id: 'turbo', label: 'Turbo', durationMs: 1000, timeHint: '1.0 s' },
+};
 
 const INPUT_LOCKED_STATES: ReadonlySet<FSMState> = new Set<FSMState>([
   'IDLE',
@@ -38,6 +53,7 @@ type InternalAction =
 
 interface InternalEngineState {
   level: TenFrameLevel;
+  speed: TenFrameSpeedMode;
   lastAnswer?: number;
   engine: TenFrameEngineState;
 }
@@ -92,15 +108,17 @@ function evaluateCandidateAnswer(
 
 function startNewRoundState(
   level: TenFrameLevel,
+  speed: TenFrameSpeedMode,
   streakCount: number,
   lastAnswer?: number
 ): InternalEngineState {
   const challenge = generateRound(level, lastAnswer);
   return {
     level,
+    speed,
     lastAnswer: challenge.expectedAnswer,
     engine: {
-      fsm: 'PRE_FLASH',
+      fsm: speed === 'steady' ? 'AWAITING_INPUT' : 'PRE_FLASH',
       currentChallenge: challenge,
       selectedAnswer: null,
       inputBuffer: '',
@@ -115,17 +133,21 @@ function tenFrameReducer(
   state: InternalEngineState,
   action: InternalAction
 ): InternalEngineState {
-  const { engine, level } = state;
+  const { engine, level, speed } = state;
 
   switch (action.type) {
     case 'START_ROUND':
     case 'NEXT_ROUND': {
-      return startNewRoundState(level, engine.streakCount, state.lastAnswer);
+      return startNewRoundState(level, speed, engine.streakCount, state.lastAnswer);
     }
 
     case 'CHANGE_LEVEL': {
       const nextLevel = action.newLevel;
-      return startNewRoundState(nextLevel, 0, undefined);
+      return startNewRoundState(nextLevel, speed, 0, undefined);
+    }
+
+    case 'CHANGE_SPEED': {
+      return startNewRoundState(level, action.newSpeed, engine.streakCount, state.lastAnswer);
     }
 
     case 'PRE_FLASH_TIMEOUT': {
@@ -270,6 +292,10 @@ function tenFrameReducer(
       };
     }
 
+    case 'RESET_GAME': {
+      return startNewRoundState(level, speed, 0, state.lastAnswer);
+    }
+
     default:
       return state;
   }
@@ -278,7 +304,9 @@ function tenFrameReducer(
 export interface UseTenFrameEngineReturn {
   state: TenFrameEngineState;
   level: TenFrameLevel;
+  speed: TenFrameSpeedMode;
   levelConfig: TenFrameLevelConfig;
+  speedConfig: TenFrameSpeedConfig;
   replaySteps: ReplayStep[];
   isInputLocked: boolean;
   isTokensVisible: boolean;
@@ -291,7 +319,9 @@ export interface UseTenFrameEngineReturn {
   triggerPeek: () => void;
   requestSolution: () => void;
   nextRound: () => void;
+  resetGame: () => void;
   changeLevel: (newLevel: TenFrameLevel) => void;
+  changeSpeed: (newSpeed: TenFrameSpeedMode) => void;
 }
 
 /**
@@ -299,20 +329,27 @@ export interface UseTenFrameEngineReturn {
  * Gestiona timers reactivos calibrados con performance.now() y cancelación limpia.
  */
 export function useTenFrameEngine(
-  initialLevel: TenFrameLevel = 1
+  initialLevel: TenFrameLevel = 1,
+  initialSpeed: TenFrameSpeedMode = 'calm'
 ): UseTenFrameEngineReturn {
-  const [internalState, rawDispatch] = useReducer(tenFrameReducer, initialLevel, (lvl) => ({
-    level: lvl,
-    lastAnswer: undefined,
-    engine: createInitialEngineState(),
-  }));
+  const [internalState, rawDispatch] = useReducer(
+    tenFrameReducer,
+    { initialLevel, initialSpeed },
+    ({ initialLevel: lvl, initialSpeed: spd }) => ({
+      level: lvl,
+      speed: spd,
+      lastAnswer: undefined,
+      engine: createInitialEngineState(),
+    })
+  );
 
   const transitionTimestampRef = useRef<number>(
     typeof performance !== 'undefined' ? performance.now() : Date.now()
   );
 
-  const { engine, level } = internalState;
+  const { engine, level, speed } = internalState;
   const levelConfig = TEN_FRAME_LEVELS[level];
+  const speedConfig = TEN_FRAME_SPEEDS[speed];
 
   useEffect(() => {
     transitionTimestampRef.current =
@@ -324,10 +361,10 @@ export function useTenFrameEngine(
       timerId = setTimeout(() => {
         rawDispatch({ type: 'PRE_FLASH_TIMEOUT' });
       }, PRE_FLASH_DURATION_MS);
-    } else if (engine.fsm === 'FLASH_ACTIVE') {
+    } else if (engine.fsm === 'FLASH_ACTIVE' && speedConfig.durationMs !== null) {
       timerId = setTimeout(() => {
         rawDispatch({ type: 'FLASH_TIMEOUT' });
-      }, levelConfig.flashDurationMs);
+      }, speedConfig.durationMs);
     } else if (engine.fsm === 'PEEK_ACTIVE') {
       timerId = setTimeout(() => {
         rawDispatch({ type: 'PEEK_TIMEOUT' });
@@ -347,7 +384,7 @@ export function useTenFrameEngine(
         clearTimeout(timerId);
       }
     };
-  }, [engine.fsm, engine.currentChallenge?.id, levelConfig.flashDurationMs]);
+  }, [engine.fsm, engine.currentChallenge?.id, speedConfig.durationMs]);
 
   const dispatch = useCallback((action: TenFrameAction) => {
     rawDispatch(action);
@@ -366,8 +403,13 @@ export function useTenFrameEngine(
     []
   );
   const nextRound = useCallback(() => rawDispatch({ type: 'NEXT_ROUND' }), []);
+  const resetGame = useCallback(() => rawDispatch({ type: 'RESET_GAME' }), []);
   const changeLevel = useCallback(
     (newLevel: TenFrameLevel) => rawDispatch({ type: 'CHANGE_LEVEL', newLevel }),
+    []
+  );
+  const changeSpeed = useCallback(
+    (newSpeed: TenFrameSpeedMode) => rawDispatch({ type: 'CHANGE_SPEED', newSpeed }),
     []
   );
 
@@ -378,6 +420,7 @@ export function useTenFrameEngine(
 
   const isInputLocked = INPUT_LOCKED_STATES.has(engine.fsm);
   const isTokensVisible =
+    (speed === 'steady' && engine.fsm !== 'IDLE') ||
     engine.fsm === 'FLASH_ACTIVE' ||
     engine.fsm === 'PEEK_ACTIVE' ||
     engine.fsm === 'SUCCESS_FEEDBACK' ||
@@ -386,7 +429,9 @@ export function useTenFrameEngine(
   return {
     state: engine,
     level,
+    speed,
     levelConfig,
+    speedConfig,
     replaySteps,
     isInputLocked,
     isTokensVisible,
@@ -399,6 +444,8 @@ export function useTenFrameEngine(
     triggerPeek,
     requestSolution,
     nextRound,
+    resetGame,
     changeLevel,
+    changeSpeed,
   };
 }

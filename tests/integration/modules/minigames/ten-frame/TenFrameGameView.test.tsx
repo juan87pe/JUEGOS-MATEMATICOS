@@ -44,7 +44,7 @@ describe('TenFrameGameView Integration (CUJ 1 - CUJ 5)', () => {
 
     // FLASH_ACTIVE (1100 ms) -> AWAITING_INPUT
     act(() => {
-      vi.advanceTimersByTime(1100);
+      vi.advanceTimersByTime(3000);
     });
     expect(key5).not.toBeDisabled();
   });
@@ -56,14 +56,14 @@ describe('TenFrameGameView Integration (CUJ 1 - CUJ 5)', () => {
       vi.advanceTimersByTime(PRE_FLASH_DURATION_MS);
     });
     act(() => {
-      vi.advanceTimersByTime(1100);
+      vi.advanceTimersByTime(3000);
     });
 
     const peekBtn = screen.getByRole('button', { name: /Espiar/i });
     expect(peekBtn).not.toBeDisabled();
 
     fireEvent.click(peekBtn);
-    expect(screen.getByText(/¡Observa bien!/i)).toBeInTheDocument();
+    expect(screen.getByText(/¡Observa bien las fichas en el marco!/i)).toBeInTheDocument();
 
     act(() => {
       vi.advanceTimersByTime(PEEK_DURATION_MS);
@@ -71,10 +71,12 @@ describe('TenFrameGameView Integration (CUJ 1 - CUJ 5)', () => {
     expect(peekBtn).toBeDisabled();
   });
 
-  it('CUJ 4: cambiar a Nivel 2 muestra doble grilla y teclado compacto 3x4', () => {
+  it('CUJ 4: cambiar a Nivel 2 mediante menú desplegable estilizado muestra doble grilla y teclado compacto 3x4', () => {
     render(<TenFrameGameView />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Nivel 2' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Menú de nivel y velocidad' }));
+    expect(screen.getByTestId('level-speed-menu')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Nivel 2 · Adición Make-10'));
 
     expect(screen.getByTestId('ten-frame-grid-grid-a')).toBeInTheDocument();
     expect(screen.getByTestId('ten-frame-grid-grid-b')).toBeInTheDocument();
@@ -90,7 +92,7 @@ describe('TenFrameGameView Integration (CUJ 1 - CUJ 5)', () => {
       vi.advanceTimersByTime(PRE_FLASH_DURATION_MS);
     });
     act(() => {
-      vi.advanceTimersByTime(1100);
+      vi.advanceTimersByTime(3000);
     });
 
     // Abrir solución manualmente
@@ -108,12 +110,68 @@ describe('TenFrameGameView Integration (CUJ 1 - CUJ 5)', () => {
     expect(activeCells).toBeGreaterThanOrEqual(1);
 
     act(() => {
-      vi.advanceTimersByTime(1100);
+      vi.advanceTimersByTime(3000);
     });
 
     fireEvent.click(screen.getByRole('button', { name: String(activeCells) }));
     expect(screen.getByText(/¡Genial!/i)).toBeInTheDocument();
     expect(soundSpy).toHaveBeenCalled();
     expect(confettiHelper.triggerMiniConfetti).toHaveBeenCalled();
+  });
+
+  it('Escenario 1B [REQ-TF-001]: TenFrameGrid y TokenCell usan vértices rectos (rounded-none), bordes gruesos continuos y fichas proporcionales (~78%)', () => {
+    render(<TenFrameGameView />);
+
+    const grid = screen.getByTestId('ten-frame-grid-grid-a');
+    expect(grid).toHaveClass('rounded-none', 'bg-cloud-text');
+
+    const firstCell = screen.getByTestId('token-cell-0');
+    expect(firstCell).toHaveClass('rounded-none', 'aspect-square');
+
+    // Avanzar a FLASH_ACTIVE para verificar la proporción de las fichas activas
+    act(() => {
+      vi.advanceTimersByTime(PRE_FLASH_DURATION_MS);
+    });
+
+    const activeToken = screen.getAllByLabelText('ficha activa')[0];
+    expect(activeToken).toHaveClass('w-[78%]', 'h-[78%]');
+  });
+
+  it('Escenario 11 [REQ-TF-013/014]: botones puros, menú desplegable estilizado de nivel y velocidad, explicación resumida y reinicio', () => {
+    const onExit = vi.fn();
+    render(<TenFrameGameView onExit={onExit} />);
+
+    // Botón de retroceso solo icono
+    const backBtn = screen.getByRole('button', { name: 'Volver al menú' });
+    expect(backBtn.textContent?.trim()).toBe('');
+
+    // Menú desplegable estilizado con niveles y velocidades
+    const menuTrigger = screen.getByRole('button', { name: 'Menú de nivel y velocidad' });
+    expect(menuTrigger).toHaveTextContent('Nivel 1 · Tranquilo');
+    fireEvent.click(menuTrigger);
+    expect(screen.getByTestId('level-speed-menu')).toBeInTheDocument();
+    expect(screen.getByText('Nivel 1 · Subitización Base 5')).toBeInTheDocument();
+    expect(screen.getByText('Sin prisa')).toBeInTheDocument();
+    expect(screen.getByText('Flash')).toBeInTheDocument();
+    expect(screen.getByText('Turbo')).toBeInTheDocument();
+
+    // Seleccionar modo Sin prisa: fichas permanecen visibles en AWAITING_INPUT
+    fireEvent.click(screen.getByText('Sin prisa'));
+    expect(menuTrigger).toHaveTextContent('Nivel 1 · Sin prisa');
+    const activeCells = document.querySelectorAll('[data-cell-state="active"]').length;
+    expect(activeCells).toBeGreaterThanOrEqual(1);
+
+    expect(
+      screen.getByText('Observa el marco rápido y toca cuántas fichas viste.')
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Espiar' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Solución' }).textContent).toBe('Solución');
+
+    // Acertar para subir la racha a 1 y luego reiniciar el minijuego
+    fireEvent.click(screen.getByRole('button', { name: String(activeCells) }));
+    expect(screen.getByTestId('streak-pill')).toHaveTextContent('1');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reiniciar minijuego' }));
+    expect(screen.getByTestId('streak-pill')).toHaveTextContent('0');
   });
 });

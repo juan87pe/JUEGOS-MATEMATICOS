@@ -13,14 +13,25 @@ Escenario: El generador produce patrones matemáticos válidos en base 5
   Y ninguna grilla debe contener más de 10 fichas
 ```
 
+### Escenario 1B: Geometría Referencial y Proporción del Marco de Diez
+**Trazabilidad:** `[REQ-TF-001]`
+```gherkin
+Escenario: Estructura física, bordes gruesos, vértices rectos y proporción de fichas
+  Dado que se renderiza un componente TenFrameGrid en pantalla
+  Cuando se inspeccionan el contenedor, sus celdas 1:1 y las fichas activas o fantasma
+  Entonces el contenedor y sus celdas deben presentar vértices rectos sin redondeo ("rounded-none")
+  Y los bordes exteriores y divisores internos deben ser gruesos, continuos y de alto contraste
+  Y cada círculo u objeto dentro de la celda debe ocupar aproximadamente el 78% del espacio de la celda
+```
+
 ---
 
 ### Escenario 2: Control Temporal del Flash y Anclaje Espacial
 **Trazabilidad:** `[REQ-TF-003]`, `[REQ-TF-004]`
 ```gherkin
 Escenario: Transición tras la ventana de exposición flash sin perder la grilla
-  Dado que un reto de Nivel 1 entra en el estado "FLASH_ACTIVE"
-  Cuando transcurren exactamente 1100 ms de exposición
+  Dado que un reto de Nivel 1 entra en el estado "FLASH_ACTIVE" en modo por defecto "Tranquilo"
+  Cuando transcurren exactamente 3000 ms de exposición
   Entonces el estado del motor debe cambiar a "AWAITING_INPUT"
   Y las fichas activas deben desvanecerse en 100 ms
   Y las 10 casillas vacías de la grilla 2x5 deben permanecer visibles en pantalla
@@ -131,4 +142,21 @@ Escenario: Ausencia total de campos input y respeto del viewport
   Entonces no debe existir ningún elemento "<input>" editable
   Y ningún botón táctil debe medir menos de 56x56 px
   Y la altura total renderizada no debe exceder 568px, impidiendo cualquier scroll vertical
+```
+
+---
+
+### Escenario 11: Menú Desplegable Estilizado, Botones Puros, Explicación y Reinicio
+**Trazabilidad:** `[REQ-TF-013]`, `[REQ-TF-014]`, `[REQ-SHELL-008]`
+```gherkin
+Escenario: Cambio de nivel y velocidad por menú desplegable estilizado, reinicio y botones puros
+  Dado que el usuario está jugando en "TenFrameGameView"
+  Cuando abre el menú desplegable de niveles y velocidad en la cabecera
+  Entonces debe visualizar las tarjetas de nivel con título y descripción y las 4 velocidades ("Sin prisa", "Tranquilo", "Flash", "Turbo")
+  Y los botones de rescate deben mostrar únicamente texto ("Espiar", "Solución") sin mezclar icono y texto
+  Y la banda de instrucción debe mostrar una explicación resumida de qué trata el nivel activo
+  Cuando selecciona el modo "Sin prisa"
+  Entonces las fichas permanecen visibles durante "AWAITING_INPUT" sin ocultarse
+  Cuando el niño pulsa el botón de reiniciar minijuego
+  Entonces la racha vuelve a 0 y se genera un nuevo reto aleatorio en el nivel actual
 ```

@@ -29,7 +29,7 @@ El minijuego opera como un módulo desacoplado dentro de `src/modules/minigames/
 - [x] **Tarea 3.1: Implementación de `useTenFrameEngine`**
   - Crear `src/modules/minigames/ten-frame/useTenFrameEngine.ts`.
   - Implementar máquina de estados con 10 estados y acciones tipadas `TenFrameAction`.
-  - Gestionar timers reactivos con `performance.now()` y cancelación limpia en `useEffect`.
+  - Gestionar velocidades configurables `TenFrameSpeedMode` (`steady` fijo, `calm` 3000ms por defecto, `flash` 1800ms, `turbo` 1000ms) y cancelación limpia en `useEffect`.
   - Incorporar guards de `input-lock` durante flash y peek.
   - Exponer interfaz pública `UseTenFrameEngineReturn`.
 - [x] **Tarea 3.2: Pruebas de Integración de la FSM con Vitest**
@@ -39,10 +39,11 @@ El minijuego opera como un módulo desacoplado dentro de `src/modules/minigames/
 ### Fase 4: Componentes Visuales Desacoplados
 - [x] **Tarea 4.1: Componente Celda Atómica (`TokenCell.tsx`)**
   - Crear `src/modules/minigames/ten-frame/components/TokenCell.tsx`.
-  - Renderizar estados: `empty`, `active` (manzanas SVG/círculos), `ghost` (borde discontinuo y cruz sutil), y `base5-glow`.
+  - Renderizar celda 1:1 con vértices rectos (`rounded-none`) y estados: `empty`, `active` (círculos con contorno contrastado / objetos), `ghost` (borde discontinuo y cruz sutil), y `base5-glow`.
+  - Dimensionar todas las fichas proporcionalmente al ~78% del tamaño de la celda (`w-[78%] h-[78%]`).
 - [x] **Tarea 4.2: Grilla Canónica $2 \times 5$ (`TenFrameGrid.tsx`)**
   - Crear `src/modules/minigames/ten-frame/components/TenFrameGrid.tsx`.
-  - Matriz de $2 \times 5$ con bordes contrastados y celdas 1:1.
+  - Matriz continua de $2 \times 5$ con bordes exteriores y divisores internos gruesos de alto contraste, vértices rectos sin redondeo (`rounded-none`) y celdas 1:1, reutilizable por otros minijuegos.
 - [x] **Tarea 4.3: Escenario de Marcos Adaptativo (`TenFrameStage.tsx`)**
   - Crear `src/modules/minigames/ten-frame/components/TenFrameStage.tsx`.
   - Renderizar 1 grilla en N1 o 2 grillas apiladas en N2/N3 con tokens de 28px (altura $\le 200\text{px}$).
@@ -58,7 +59,7 @@ El minijuego opera como un módulo desacoplado dentro de `src/modules/minigames/
 ### Fase 5: Integración, Registro y Pruebas UI
 - [x] **Tarea 5.1: Vista Principal (`TenFrameGameView.tsx`)**
   - Crear `src/modules/minigames/ten-frame/TenFrameGameView.tsx`.
-  - Integrar Header, Escenario, Feedback y Teclado dentro del contenedor de 4 bandas $\le 568\text{px}$ de altura.
+  - Integrar Header (retroceso por icono, menú desplegable estilizado "Cielo Nublado" de niveles con descripción + selector de velocidad, racha, reinicio por icono y audio), Escenario, Feedback con explicación resumida contextual y botones puros (`Espiar`, `Solución`), y Teclado dentro del contenedor de 4 bandas $\le 568\text{px}$ de altura.
   - Conectar sonidos con `MOD-REWARD` (`soundService`) y confeti con `confettiHelper.ts`.
 - [x] **Tarea 5.2: Registro en Catálogo del Sistema**
   - Modificar `src/modules/minigames/registry.ts` registrando `MG-TF`.

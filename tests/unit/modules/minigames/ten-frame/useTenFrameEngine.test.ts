@@ -16,7 +16,7 @@ describe('useTenFrameEngine (FSM & Timers MG-TF)', () => {
     vi.useRealTimers();
   });
 
-  it('transiciona por PRE_FLASH (600ms) -> FLASH_ACTIVE (1100ms en N1) -> AWAITING_INPUT', () => {
+  it('transiciona por PRE_FLASH (600ms) -> FLASH_ACTIVE (3000ms en Tranquilo) -> AWAITING_INPUT', () => {
     const { result } = renderHook(() => useTenFrameEngine(1));
     expect(result.current.state.fsm).toBe('IDLE');
     expect(result.current.isInputLocked).toBe(true);
@@ -36,7 +36,7 @@ describe('useTenFrameEngine (FSM & Timers MG-TF)', () => {
     expect(result.current.isTokensVisible).toBe(true);
 
     act(() => {
-      vi.advanceTimersByTime(1100);
+      vi.advanceTimersByTime(3000);
     });
     expect(result.current.state.fsm).toBe('AWAITING_INPUT');
     expect(result.current.isInputLocked).toBe(false);
@@ -61,7 +61,7 @@ describe('useTenFrameEngine (FSM & Timers MG-TF)', () => {
     expect(result.current.state.selectedAnswer).toBeNull();
 
     act(() => {
-      vi.advanceTimersByTime(1100);
+      vi.advanceTimersByTime(3000);
     });
     expect(result.current.state.fsm).toBe('AWAITING_INPUT');
 
@@ -89,7 +89,7 @@ describe('useTenFrameEngine (FSM & Timers MG-TF)', () => {
       vi.advanceTimersByTime(PRE_FLASH_DURATION_MS);
     });
     act(() => {
-      vi.advanceTimersByTime(1100);
+      vi.advanceTimersByTime(3000);
     });
 
     const expected = result.current.state.currentChallenge!.expectedAnswer;
@@ -116,7 +116,7 @@ describe('useTenFrameEngine (FSM & Timers MG-TF)', () => {
       vi.advanceTimersByTime(PRE_FLASH_DURATION_MS);
     });
     act(() => {
-      vi.advanceTimersByTime(1300);
+      vi.advanceTimersByTime(3000);
     });
     expect(result.current.state.fsm).toBe('AWAITING_INPUT');
 
@@ -154,7 +154,7 @@ describe('useTenFrameEngine (FSM & Timers MG-TF)', () => {
       vi.advanceTimersByTime(PRE_FLASH_DURATION_MS);
     });
     act(() => {
-      vi.advanceTimersByTime(1100);
+      vi.advanceTimersByTime(3000);
     });
 
     act(() => {
@@ -186,7 +186,7 @@ describe('useTenFrameEngine (FSM & Timers MG-TF)', () => {
       vi.advanceTimersByTime(PRE_FLASH_DURATION_MS);
     });
     act(() => {
-      vi.advanceTimersByTime(1100);
+      vi.advanceTimersByTime(3000);
     });
 
     const expected = result.current.state.currentChallenge!.expectedAnswer;
@@ -225,5 +225,32 @@ describe('useTenFrameEngine (FSM & Timers MG-TF)', () => {
     });
     expect(result.current.state.fsm).toBe('PRE_FLASH');
     expect(result.current.state.attemptsLeft).toBe(2);
+  });
+
+  it('permite cambiar velocidad a Sin prisa (permanente), Flash (1800ms) y Turbo (1000ms)', () => {
+    const { result } = renderHook(() => useTenFrameEngine(1));
+
+    act(() => {
+      result.current.changeSpeed('steady');
+    });
+    expect(result.current.speed).toBe('steady');
+    expect(result.current.state.fsm).toBe('AWAITING_INPUT');
+    expect(result.current.isTokensVisible).toBe(true);
+
+    act(() => {
+      result.current.changeSpeed('turbo');
+    });
+    expect(result.current.speed).toBe('turbo');
+    expect(result.current.state.fsm).toBe('PRE_FLASH');
+
+    act(() => {
+      vi.advanceTimersByTime(PRE_FLASH_DURATION_MS);
+    });
+    expect(result.current.state.fsm).toBe('FLASH_ACTIVE');
+
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(result.current.state.fsm).toBe('AWAITING_INPUT');
   });
 });

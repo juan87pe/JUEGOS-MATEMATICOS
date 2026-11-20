@@ -20,17 +20,19 @@
 ### `[REQ-TF-001]` Estructura Física y Geometría del Marco de Diez
 - **Tipo:** Universal
 - **Sintaxis EARS:**
-  > El sistema deberá renderizar cada marco de diez como una grilla fija de 2 filas por 5 columnas ($2 \times 5$ horizontal) con bordes contrastados (mínimo ratio 4.5:1), esquinas redondeadas y celdas individuales con relación de aspecto cuadrada 1:1.
+  > El sistema deberá renderizar cada marco de diez como una grilla fija y continua de 2 filas por 5 columnas ($2 \times 5$ horizontal) con bordes exteriores y divisores internos gruesos de alto contraste (mínimo ratio 4.5:1), vértices rectos sin suavización de ángulos (`rounded-none`), celdas individuales con relación de aspecto cuadrada 1:1 y fichas (círculos u otros objetos) dimensionadas proporcionalmente al ~78% del espacio interior de cada celda.
+
+> **Estándar Visual Compartido:** Esta geometría canónica (bordes gruesos continuos, vértices rectos sin redondeo y proporción ficha-celda ~78%) aplica tanto a `MG-TF` como a cualquier otro minijuego del catálogo que reutilice el componente Marco de Diez.
 
 ### `[REQ-TF-002]` Llenado Canónico Estructurado en Base 5
 - **Tipo:** Universal
 - **Sintaxis EARS:**
   > El sistema deberá ubicar los elementos visuales activos en estricto orden canónico de base 5: poblando primero las celdas 1 a 5 de la fila superior de izquierda a derecha, y posteriormente las celdas 6 a 10 de la fila inferior de izquierda a derecha.
 
-### `[REQ-TF-003]` Exposición Temporal Flash Calibrada por Nivel
+### `[REQ-TF-003]` Exposición Temporal Calibrada por Velocidad del Marco
 - **Tipo:** State-driven (Orientado a estado)
 - **Sintaxis EARS:**
-  > MIENTRAS el juego se encuentre en el estado `FLASH_ACTIVE`, el sistema deberá mostrar los elementos en el marco durante una ventana fija ininterrumpida de 1100 ms en Nivel 1, 1300 ms en Nivel 2 y 1200 ms en Nivel 3 antes de ocultarlos.
+  > MIENTRAS el juego opere en modo **Tranquilo** (por defecto, `3000 ms`), **Flash** (`1800 ms`) o **Turbo** (`1000 ms`), el sistema deberá mostrar los elementos en el marco durante esa ventana fija en `FLASH_ACTIVE` antes de ocultarlos; MIENTRAS opere en modo **Sin prisa**, las fichas permanecerán visibles de forma permanente durante `AWAITING_INPUT` sin ocultarse.
 
 ### `[REQ-TF-004]` Persistencia del Marco Vacío como Anclaje Espacial
 - **Tipo:** State-driven (Orientado a estado)
@@ -77,12 +79,22 @@
 - **Sintaxis EARS:**
   > El sistema deberá sintetizar todos los tonos mediante `soundService` de `MOD-REWARD` sin descargas de audio externas, inicializar el contexto de audio únicamente tras el primer toque táctil del usuario, y evitar cualquier sonido estruendoso o penalización punitiva ante respuestas incorrectas.
 
+### `[REQ-TF-013]` Menú Desplegable Estilizado de Nivel y Velocidad, Botones Puros y Reinicio
+- **Tipo:** Universal / Event-driven
+- **Sintaxis EARS:**
+  > El sistema deberá presentar en la cabecera un botón de solo texto (ej. `Nivel 1 · Tranquilo ▾`) que abra un menú desplegable personalizado con estética "Cielo Nublado" conteniendo: (a) las tarjetas de nivel con título y descripción (`Nivel 1 · Subitización Base 5`, `Nivel 2 · Adición Make-10`, `Nivel 3 · Resta Fantasma`), y (b) el selector de velocidad del marco (**Sin prisa**, **Tranquilo**, **Flash**, **Turbo**); además de un botón de retroceso por icono, un botón de reinicio por icono y botones de rescate (`Espiar`, `Solución`) en solo texto.
+
+### `[REQ-TF-014]` Explicación Resumida Contextual del Juego
+- **Tipo:** State-driven (Orientado a estado)
+- **Sintaxis EARS:**
+  > MIENTRAS el juego esté en espera de respuesta o preparación (`PRE_FLASH`, `FLASH_ACTIVE`, `PEEK_ACTIVE`, `AWAITING_INPUT`), el sistema deberá mostrar en la banda de instrucción una explicación resumida y comprensible para niños sobre el objetivo del nivel activo.
+
 ---
 
 ## 3. Matriz de Niveles y Configuración Curricular
 
-| Nivel | Nombre Didáctico | Marcos Activos | Operación | Ventana Flash | Disposición de Teclado | Rango de Respuestas |
+| Nivel | Nombre Didáctico | Marcos Activos | Operación | Ventana Flash (por defecto) | Disposición de Teclado | Rango de Respuestas |
 |---|---|---|---|---|---|---|
-| **1** | Subitización Base 5 | 1 marco ($2 \times 5$) | Conteo Unitario | 1100 ms | Isomórfico $2 \times 5$ (1 a 10) | 1 a 10 |
-| **2** | Adición Make-10 | 2 marcos apilados | Suma ($A + B > 10$) | 1300 ms | Compacto $3 \times 4$ (0 a 9 + ⌫ + ✓) | 11 a 18 |
-| **3** | Resta Fantasma | 1 o 2 marcos apilados | Resta ($M - S \ge 1$) | 1200 ms | Compacto $3 \times 4$ (0 a 9 + ⌫ + ✓) | 1 a 14 |
+| **1** | Subitización Base 5 | 1 marco ($2 \times 5$) | Conteo Unitario | 3000 ms (Tranquilo) · configurable | Isomórfico $2 \times 5$ (1 a 10) | 1 a 10 |
+| **2** | Adición Make-10 | 2 marcos apilados | Suma ($A + B > 10$) | 3000 ms (Tranquilo) · configurable | Compacto $3 \times 4$ (0 a 9 + ⌫ + ✓) | 11 a 18 |
+| **3** | Resta Fantasma | 1 o 2 marcos apilados | Resta ($M - S \ge 1$) | 3000 ms (Tranquilo) · configurable | Compacto $3 \times 4$ (0 a 9 + ⌫ + ✓) | 1 a 14 |

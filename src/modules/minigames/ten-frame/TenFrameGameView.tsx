@@ -12,6 +12,7 @@ import {
 import { TenFrameStage } from './components/TenFrameStage';
 import { InAppKeypad } from './components/InAppKeypad';
 import { SolutionReplayModal } from './components/SolutionReplayModal';
+import { LevelSpeedDropdown } from './components/LevelSpeedDropdown';
 
 interface TenFrameGameViewProps {
   onExit?: () => void;
@@ -29,6 +30,7 @@ export const TenFrameGameView: React.FC<TenFrameGameViewProps> = ({
   const {
     state,
     level,
+    speed,
     levelConfig,
     replaySteps,
     isInputLocked,
@@ -40,7 +42,9 @@ export const TenFrameGameView: React.FC<TenFrameGameViewProps> = ({
     triggerPeek,
     requestSolution,
     nextRound,
+    resetGame,
     changeLevel,
+    changeSpeed,
   } = useTenFrameEngine(initialLevel);
 
   const [muted, setMuted] = useState<boolean>(() => soundService.isMuted());
@@ -93,59 +97,99 @@ export const TenFrameGameView: React.FC<TenFrameGameViewProps> = ({
     setMuted(soundService.toggleMute());
   };
 
+  const getInstructionSummary = () => {
+    if (state.fsm === 'PRE_FLASH') {
+      return 'Prepárate: observa rápido cuántas fichas aparecen.';
+    }
+    if (state.fsm === 'FLASH_ACTIVE' || state.fsm === 'PEEK_ACTIVE') {
+      return '¡Observa bien las fichas en el marco!';
+    }
+    if (level === 2) {
+      return 'Suma las fichas de ambos marcos completando 10.';
+    }
+    if (level === 3) {
+      return 'Cuenta cuántas fichas quedan al quitar las marcadas con ✕.';
+    }
+    return 'Observa el marco rápido y toca cuántas fichas viste.';
+  };
+
   return (
     <div
       data-testid="ten-frame-game-view"
       className="flex-1 flex flex-col justify-between px-3 py-2 max-h-[568px] my-auto overflow-hidden gap-1.5"
     >
-      {/* Banda 1: Header compacto (Menú, Nivel, Racha, Audio) */}
-      <header className="flex items-center justify-between gap-1.5 pb-1 border-b border-cloud-border">
+      {/* Banda 1: Header compacto (Retroceso, Menú de Nivel/Velocidad, Racha, Reiniciar, Audio) */}
+      <header className="relative flex items-center justify-between gap-1.5 pb-1 border-b border-cloud-border">
         {onExit ? (
           <button
             type="button"
             onClick={onExit}
             aria-label="Volver al menú"
-            className="min-w-[56px] min-h-[56px] px-3 rounded-btn bg-cloud-surface border border-cloud-border text-cloud-text font-semibold text-xs flex items-center justify-center gap-1 shadow-cloud-sm active:scale-95 transition-transform"
+            title="Volver al menú"
+            className="min-w-[56px] min-h-[56px] rounded-btn bg-cloud-surface border border-cloud-border text-cloud-text flex items-center justify-center shadow-cloud-sm active:scale-95 transition-transform shrink-0"
           >
-            <span>⬅️</span>
-            <span>Menú</span>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-6 h-6"
+              aria-hidden="true"
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
           </button>
         ) : (
-          <div className="min-w-[56px]" />
+          <div className="min-w-[56px] shrink-0" />
         )}
 
-        {/* Selector rápido de Niveles */}
-        <div className="flex items-center gap-1 bg-cloud-surface p-1 rounded-btn border border-cloud-border">
-          {([1, 2, 3] as TenFrameLevel[]).map((lvl) => (
-            <button
-              key={lvl}
-              type="button"
-              onClick={() => changeLevel(lvl)}
-              aria-label={`Nivel ${lvl}`}
-              className={`min-w-[56px] min-h-[56px] rounded-xl font-heading font-bold text-sm transition-colors ${
-                level === lvl
-                  ? 'bg-cloud-sage text-white shadow-sm'
-                  : 'bg-transparent text-cloud-muted hover:text-cloud-text'
-              }`}
-            >
-              N{lvl}
-            </button>
-          ))}
-        </div>
+        {/* Menú desplegable estilizado de Niveles y Velocidad */}
+        <LevelSpeedDropdown
+          level={level}
+          speed={speed}
+          onChangeLevel={changeLevel}
+          onChangeSpeed={changeSpeed}
+        />
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 shrink-0">
           <div
             data-testid="streak-pill"
-            className="px-2.5 py-1 rounded-pill bg-cloud-sunLight border border-cloud-sun text-cloud-sunDark font-heading font-bold text-xs flex items-center gap-1"
+            aria-label={`Racha de ${state.streakCount} aciertos`}
+            className="min-w-[56px] min-h-[56px] px-2.5 rounded-btn bg-cloud-sunLight border border-cloud-sun text-cloud-sunDark font-heading font-bold text-sm flex items-center justify-center gap-1 shadow-cloud-sm"
           >
-            <span>🔥</span>
+            <span className="text-base" aria-hidden="true">🔥</span>
             <span>{state.streakCount}</span>
           </div>
 
           <button
             type="button"
+            onClick={resetGame}
+            aria-label="Reiniciar minijuego"
+            title="Reiniciar minijuego"
+            className="min-w-[56px] min-h-[56px] rounded-btn bg-cloud-surface border border-cloud-border text-cloud-text flex items-center justify-center shadow-cloud-sm active:scale-95 transition-transform"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-5 h-5"
+              aria-hidden="true"
+            >
+              <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+              <path d="M3 3v5h5" />
+            </svg>
+          </button>
+
+          <button
+            type="button"
             onClick={handleToggleMute}
             aria-label={muted ? 'Activar sonido' : 'Silenciar sonido'}
+            title={muted ? 'Activar sonido' : 'Silenciar sonido'}
             className="min-w-[56px] min-h-[56px] rounded-btn bg-cloud-surface border border-cloud-border flex items-center justify-center text-lg shadow-cloud-sm active:scale-95 transition-transform"
           >
             {muted ? '🔇' : '🔊'}
@@ -179,39 +223,41 @@ export const TenFrameGameView: React.FC<TenFrameGameViewProps> = ({
           state.fsm === 'FLASH_ACTIVE' ||
           state.fsm === 'PEEK_ACTIVE') && (
           <>
-            <div className="text-xs font-semibold text-cloud-muted truncate">
-              {state.fsm === 'FLASH_ACTIVE' || state.fsm === 'PEEK_ACTIVE'
-                ? '👀 ¡Observa bien!'
-                : state.fsm === 'PRE_FLASH'
-                ? '⏳ Prepárate...'
-                : `${state.currentChallenge?.operatorSymbol ?? '🔢'} ¿Cuántos hay?`}
-            </div>
+            <p className="flex-1 text-xs font-semibold text-cloud-muted leading-snug pr-1">
+              {getInstructionSummary()}
+            </p>
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 shrink-0">
               <button
                 type="button"
                 onClick={triggerPeek}
-                disabled={state.fsm !== 'AWAITING_INPUT' || state.peekUsedThisRound}
-                className={`min-w-[56px] min-h-[56px] px-2.5 rounded-btn text-xs font-bold border transition-all ${
-                  state.fsm === 'AWAITING_INPUT' && !state.peekUsedThisRound
+                disabled={
+                  state.fsm !== 'AWAITING_INPUT' ||
+                  state.peekUsedThisRound ||
+                  speed === 'steady'
+                }
+                className={`min-w-[56px] min-h-[56px] px-3 rounded-btn text-xs font-bold border transition-all ${
+                  state.fsm === 'AWAITING_INPUT' &&
+                  !state.peekUsedThisRound &&
+                  speed !== 'steady'
                     ? 'bg-cloud-sunLight border-cloud-sun text-cloud-sunDark active:scale-95'
                     : 'bg-cloud-primaryLight border-cloud-border text-cloud-muted opacity-50 cursor-not-allowed'
                 }`}
               >
-                👀 Espiar
+                Espiar
               </button>
 
               <button
                 type="button"
                 onClick={requestSolution}
                 disabled={state.fsm !== 'AWAITING_INPUT'}
-                className={`min-w-[56px] min-h-[56px] px-2.5 rounded-btn text-xs font-bold border transition-all ${
+                className={`min-w-[56px] min-h-[56px] px-3 rounded-btn text-xs font-bold border transition-all ${
                   state.fsm === 'AWAITING_INPUT'
                     ? 'bg-cloud-surface border-cloud-border text-cloud-text active:scale-95'
                     : 'bg-cloud-primaryLight border-cloud-border text-cloud-muted opacity-50 cursor-not-allowed'
                 }`}
               >
-                💡 Solución
+                Solución
               </button>
             </div>
           </>
