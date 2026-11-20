@@ -46,3 +46,8 @@ El módulo **Mobile Shell UI** provee el contenedor de navegación, diseño resp
 - **Tipo:** Universal
 - **Sintaxis EARS:**
   > El sistema deberá renderizar los botones de acción con únicamente un icono intuitivo (con `aria-label` accesible) o únicamente texto claro, evitando combinar icono y texto salvo necesidad explícita; en particular, el botón de retroceso hacia el menú principal deberá ser transversalmente solo un icono de retroceso en toda la aplicación.
+
+### `[REQ-SHELL-009]` Soporte PWA Instalable y Ejecución Offline
+- **Tipo:** Universal
+- **Sintaxis EARS:**
+  > El sistema deberá exponer un Web App Manifest válido (`display: standalone`, `orientation: portrait`, iconos `192x192`, `512x512` y `apple-touch-icon`) junto con un Service Worker de precaché para permitir la instalación en pantalla de inicio en Android e iOS y su funcionamiento sin conexión a internet tras la primera carga.

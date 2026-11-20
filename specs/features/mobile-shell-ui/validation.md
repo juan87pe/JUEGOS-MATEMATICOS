@@ -85,3 +85,15 @@ Escenario: Consistencia de botones puros y retroceso por icono
   Entonces cada botón debe mostrar únicamente un icono intuitivo (con "aria-label") o únicamente texto claro
   Y el botón de retroceso hacia el menú principal debe ser transversalmente solo un icono sin texto adjunto
 ```
+
+---
+
+### Escenario 8: Instalación PWA y modo independiente en smartphone
+**Trazabilidad:** `[REQ-SHELL-009]`
+```gherkin
+Escenario: El usuario instala la aplicación en la pantalla de inicio de su smartphone
+  Dado que la aplicación se compila para producción con "npm run build"
+  Cuando se inspecciona la salida en "dist/"
+  Entonces debe existir un archivo "manifest.webmanifest" con display "standalone", orientación "portrait" e iconos 192x192 y 512x512
+  Y debe generarse un Service Worker ("sw.js") para habilitar ejecución offline
+```

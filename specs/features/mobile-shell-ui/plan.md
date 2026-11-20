@@ -76,3 +76,8 @@ La interfaz móvil utiliza Tailwind CSS configurado para alturas de pantalla din
 - [ ] **Tarea 7: Pruebas de Usabilidad Táctil y Compatibilidad de Pantalla**
   - Verificar en resoluciones estándar: 360x640, 390x844 (iPhone 12/13/14/15) y 412x915 (Samsung Galaxy/Pixel).
   - Comprobar que todos los botones cumplan estrictamente: tamaño visual $\ge 56\times 56\text{ px}$, área táctil $\ge 60\times 60\text{ px}$, separación inter-botones $\ge 12\text{ px}$ y tamaño base de texto $\ge 18\text{ px}$.
+
+- [x] **Tarea 8: Configuración PWA Instalable (`vite-plugin-pwa`, Manifest e Iconos)**
+  - Instalar `vite-plugin-pwa` como dependencia de desarrollo y configurarlo en `vite.config.ts` con `registerType: 'autoUpdate'` y precaché de recursos estáticos.
+  - Generar iconos de la app (`public/pwa-192x192.png`, `public/pwa-512x512.png`, `public/apple-touch-icon.png`, `public/favicon.svg`) acordes a la paleta "Cielo Nublado".
+  - Añadir metaetiquetas PWA (`theme-color`, `apple-mobile-web-app-capable`, `apple-mobile-web-app-status-bar-style`, `apple-touch-icon`) en `index.html`.
